@@ -1,11 +1,22 @@
 import qs from 'qs'
 
 export default {
-    async search(query) {
-        console.log(query)
-        console.log(qs.stringify(query))
+    async search(q) {
         return fetch(
-            `http://127.0.0.1:5000/search?${qs.stringify(query)}`,
+            `http://127.0.0.1:5000/search?${qs.stringify({q: encodeURIComponent(q), count: 10})}`,
+        {
+            method: 'GET',
+            headers: {
+                Accept: 'application/json'
+            }
+        })
+    },
+
+    async request(q) {
+        console.log({count: 10, ...q})
+
+        return fetch(
+            `http://127.0.0.1:5000/search?${qs.stringify({count: 10, ...q, q: encodeURIComponent(q.q)})}`,
         {
             method: 'GET',
             headers: {

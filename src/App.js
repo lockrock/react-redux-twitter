@@ -1,111 +1,56 @@
 import React, { Component } from 'react';
 import 'bootstrap/dist/css/bootstrap.css'
-import Twit from './features/Home/Twit/Twit'
-import { bindToComponent } from './utils/component'
 import './App.css';
 import api from './api'
-import uniqBy from 'lodash.uniqby'
-import { BrowserRouter as Router, Route, Link } from 'react-router-dom'
-
+import { BrowserRouter as Router, Route, Link, withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { createStore } from 'redux'
+import ReduxThunk from 'redux-thunk'
+import propTypes from 'prop-types'
+import TwitList from './features/Home/TwitList'
+import Search, { search } from './features/Search/Search'
+import LoadMore, { load } from './features/LoadMore'
 
 class App extends Component {
-  constructor(props, state) {
-    super(props);
-    this.state = {
-      searchQuery: "#javascript",
-      statuses: []
-    };
 
-    this.searchByQuery = this.searchByQuery.bind(this);
-    this.onChangeSearchQuery = this.onChangeSearchQuery.bind(this);
-    this.onSearch = this.onSearch.bind(this);
-    this.onLoadMore = this.onLoadMore.bind(this);
-
-    this.searchByQuery({ q: "#javascript", count: 10 });
+  static propTypes = {
+    dispatch: propTypes.func.isRequired,
+    match: propTypes.string,
   }
 
-  requestQuery(query) {
-    return api.search(query).then(resp => resp.json());
+  constructor(props) {
+    super(props);
+    const { dispatch } = props;
+    // this.searchByQuery = this.searchByQuery.bind(this);
+  }
+
+  componentDidMount() {
+    // this.searchByQuery('#javascript')
   }
 
   searchByQuery(query) {
-    this.requestQuery(query).then(({ statuses }) => {
-      console.log(statuses);
-      this.setState((oldState, props) => ({ ...oldState, statuses }));
-    });
+    // this.props.dispatch(search(query))
   }
-
-  onChangeSearchQuery(e) {
-    const val = e.target.value;
-    this.setState({ searchQuery: val, count: 10 });
-  }
-
-  onSearch(e) {
-    e.preventDefault();
-    this.searchByQuery({ q: this.state.searchQuery, count: 10 });
-    
-  }
-
-  mergeArrays(arr1, arr2) {}
 
   onLoadMore(e) {
     const statuses = this.state.statuses,
       statLength = statuses.length,
-      lastId = statuses[statLength - 1].id_str;
+      lastId = statuses[statLength - 1].id;
 
-    this.requestQuery({
-      q: this.state.searchQuery,
-      since_id: lastId,
-      count: 10
-    }).then(({ statuses }) => {
-      this.setState(prevState => ({
-        ...prevState,
-        statuses: uniqBy(prevState.statuses.concat(statuses), "id_str")
-      }));
-    });
+    this.props.dispatch(load(lastId, 10, this.props.searchQuery))
   }
 
   render() {
-    const statuses = this.state.statuses
-    return <Router>
-        <div className="container-fluid App">
-          <form onSubmit={this.onSearch}>
-            <input className="form-control" type="text" value={this.state.searchQuery} onChange={this.onChangeSearchQuery} />
-            <button className="form-control">Search</button>
-          </form>
-          <ul className="App-twits">
-            {statuses ? statuses.map(status => {
-                  return <Twit {...status} key={status.id} />;
-                }) : null}
-          </ul>
-
-          {/* <Route exact path="/" {...this.state} render={(props) => <ul className="App-twits">
-                {console.log(props)}
-                {statuses
-                  ? statuses.map(status => {
-                    console.log(props)
-                    return  <Twit {...status} key={status.id} />
-                  })
-                  : null}
-              </ul>} />
-          <Route path="/:searchTerm" render={(props) => <ul className="App-twits">
-                {console.log(props)}
-                {statuses
-                  ? statuses.map(status => {
-                    console.log(props)
-                    return  <Twit {...status} key={status.id} />
-                  })
-                  : null}
-              </ul>} /> */}
-
-          <button className="btn" onClick={this.onLoadMore}>
-            Load more
-          </button>
-        </div>
-      </Router>;
+    return <div className="container-fluid App">
+        
+        <Search />        
+        <Route path="/search" component={TwitList}></Route> 
+        <Route exact path="/" component={TwitList}></Route>
+        <LoadMore /> 
+      </div>;
   }
 }
 
 
 
-export default App;
+export default withRouter(connect()(App));
