@@ -78,15 +78,17 @@ let Search = ({ searchQuery, onSearch, history }) => {
         history.push(`/search?q=${encodeURIComponent(input.value)}`)
     }
 
-    return <form onSubmit={onSubmit}>
+    return <form onSubmit={onSubmit} class="form-inline">
         <input 
+            placeholder="Search..."
             className="form-control" 
             type="text" 
             defaultValue={searchQuery} 
             ref={node => input = node}
             onChange={onChange}
+            style={{width: "calc(100% - 52px)"}} 
             />
-        <button className="form-control">Search</button>
+        <button className="btn btn-primary">Go!</button>
     </form>
 }
 

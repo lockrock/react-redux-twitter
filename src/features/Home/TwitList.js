@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { Route, withRouter } from 'react-router-dom'
 import { search } from '../Search/Search'
 import qs from 'querystring'
+import './TwitList.css'
 
 export const twitListReducer = (state, action) => {
     switch (action.type) {

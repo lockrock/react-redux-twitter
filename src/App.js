@@ -41,7 +41,7 @@ class App extends Component {
   }
 
   render() {
-    return <div className="container-fluid App">
+    return <div className="container App">
         
         <Search />        
         <Route path="/search" component={TwitList}></Route> 
